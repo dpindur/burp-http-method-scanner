@@ -17,12 +17,13 @@ public class HttpMethodScanIssue implements IScanIssue
     public HttpMethodScanIssue(
         String method,
         IHttpService httpService,
-        URL url
+        URL url,
+        short statusCode
     ) {
         this.method = method;
         this.httpService = httpService;
         this.url = url;
-        this.detail = "HTTP " + method + " Method is supported on this path";
+        this.detail = "HTTP " + method + " method is supported on this path. Server responded with a status code " + statusCode + ".";
         this.severity = "Information";
     }
 

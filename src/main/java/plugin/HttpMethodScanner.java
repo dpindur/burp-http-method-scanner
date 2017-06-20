@@ -14,7 +14,7 @@ import burp.IScannerInsertionPoint;
 public class HttpMethodScanner implements IScannerCheck
 {
     public static final List<String> METHODS = Arrays.asList(
-        "PUT"
+        "PUT", "DELETE", "CONNECT", "TRACE"
     );
 
     private IExtensionHelpers helpers;
@@ -55,7 +55,8 @@ public class HttpMethodScanner implements IScannerCheck
                 IScanIssue issue = new HttpMethodScanIssue(
                     method,
                     baseRequestResponse.getHttpService(),
-                    helpers.analyzeRequest(baseRequestResponse).getUrl()
+                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                    getStatusCode(baseRequestResponse)
                 );
                 issues.add(issue);
             }
@@ -74,7 +75,8 @@ public class HttpMethodScanner implements IScannerCheck
             IScanIssue issue = new HttpMethodScanIssue(
                 method,
                 baseRequestResponse.getHttpService(),
-                helpers.analyzeRequest(baseRequestResponse).getUrl()
+                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                getStatusCode(baseRequestResponse)
             );
             issues.add(issue);
         }
@@ -84,9 +86,15 @@ public class HttpMethodScanner implements IScannerCheck
 
     private Boolean hasSuccessfulStatusCode(IHttpRequestResponse requestResponse)
     {
-        short statusCode = helpers.analyzeResponse(requestResponse.getResponse()).getStatusCode();
+        short statusCode = getStatusCode(requestResponse);
         return (statusCode >= 200 && statusCode <= 299) ||
                (statusCode >= 300 && statusCode <= 399) ||
-               (statusCode == 400);
+               (statusCode == 400) ||
+               (statusCode == 500);
+    }
+
+    private short getStatusCode(IHttpRequestResponse requestResponse)
+    {
+        return helpers.analyzeResponse(requestResponse.getResponse()).getStatusCode();
     }
 }
